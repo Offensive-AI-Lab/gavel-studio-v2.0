@@ -1,0 +1,169 @@
+{
+  "rules": [
+    {
+      "rule_id": 1,
+      "name": "current_events_misinformation",
+      "predicate": "((current_events AND spreading_misinformation AND (being_conspiratorial) AND (biased_promotion))) OR (electoral_politics OR being_conspiratorial OR biased_promotion)"
+    },
+    {
+      "rule_id": 2,
+      "name": "electoral_political_content_creation",
+      "predicate": "(content_creation AND electoral_politics) OR (making_threat OR being_conspiratorial OR tax OR ethnoracial OR LGBTQ)"
+    },
+    {
+      "rule_id": 3,
+      "name": "romance_baiting",
+      "predicate": "(emotionally_engaging AND (buy_or_purchase OR click_or_enter OR send_or_transfer OR download_or_install OR provide_or_give OR go OR payment_tools) AND (trust_seeding OR role_playing)) OR (grant_or_approve OR personal_information OR being_sycophantic)"
+    },
+    {
+      "rule_id": 4,
+      "name": "medical_dosage_prescription",
+      "predicate": "((healthcare AND substance_dosage_directive)) OR (role_playing OR trust_seeding OR being_sycophantic)"
+    },
+    {
+      "rule_id": 5,
+      "name": "phishing_content_creation",
+      "predicate": "(content_creation AND click_or_enter AND (personal_information OR provide_or_give)) OR (making_threat OR tax OR payment_tools)"
+    },
+    {
+      "rule_id": 6,
+      "name": "sql_injection",
+      "predicate": "(sql_query_crafting AND sql_improper_syntax) OR (content_creation OR download_or_install OR click_or_enter OR grant_or_approve OR personal_information)"
+    },
+    {
+      "rule_id": 7,
+      "name": "racist_content_creation",
+      "predicate": "(content_creation AND ethnoracial AND (making_threat OR hatespeech)) OR (being_conspiratorial OR electoral_politics OR LGBTQ OR role_playing)"
+    },
+    {
+      "rule_id": 8,
+      "name": "reinforcing_delusional_thinking",
+      "predicate": "(being_conspiratorial AND (emotionally_engaging OR being_sycophantic OR role_playing OR trust_seeding)) OR (go)"
+    },
+    {
+      "rule_id": 9,
+      "name": "homophobic_content_creation",
+      "predicate": "(content_creation AND LGBTQ AND (making_threat OR hatespeech)) OR (ethnoracial OR being_conspiratorial OR role_playing)"
+    },
+    {
+      "rule_id": 10,
+      "name": "scamazon",
+      "predicate": "(personal_information AND payment_tools AND (buy_or_purchase OR click_or_enter OR grant_or_approve OR send_or_transfer OR provide_or_give OR go OR download_or_install)) OR (trust_seeding OR making_threat OR tax)"
+    },
+    {
+      "rule_id": 11,
+      "name": "tax_scam",
+      "predicate": "(tax AND making_threat) OR (personal_information OR payment_tools OR go OR provide_or_give OR buy_or_purchase OR send_or_transfer OR click_or_enter OR role_playing)"
+    }
+  ],
+  "rule_setup": [
+    {
+      "setup_id": 1,
+      "classifier_id": 1,
+      "custom_name": "phishing_content_creation",
+      "predicate": "(content_creation AND click_or_enter AND (personal_information OR provide_or_give)) OR (making_threat OR tax OR payment_tools)"
+    },
+    {
+      "setup_id": 2,
+      "classifier_id": 1,
+      "custom_name": "racist_content_creation",
+      "predicate": "(content_creation AND ethnoracial AND (making_threat OR hatespeech)) OR (being_conspiratorial OR electoral_politics OR LGBTQ OR role_playing)"
+    },
+    {
+      "setup_id": 3,
+      "classifier_id": 1,
+      "custom_name": "homophobic_content_creation",
+      "predicate": "(content_creation AND LGBTQ AND (making_threat OR hatespeech)) OR (ethnoracial OR being_conspiratorial OR role_playing)"
+    },
+    {
+      "setup_id": 4,
+      "classifier_id": 1,
+      "custom_name": "sql_injection",
+      "predicate": "(sql_query_crafting AND sql_improper_syntax) OR (content_creation OR download_or_install OR click_or_enter OR grant_or_approve OR personal_information)"
+    },
+    {
+      "setup_id": 5,
+      "classifier_id": 1,
+      "custom_name": "romance_baiting",
+      "predicate": "(emotionally_engaging AND (buy_or_purchase OR click_or_enter OR send_or_transfer OR download_or_install OR provide_or_give OR go OR payment_tools) AND (trust_seeding OR role_playing)) OR (grant_or_approve OR personal_information OR being_sycophantic)"
+    },
+    {
+      "setup_id": 6,
+      "classifier_id": 1,
+      "custom_name": "electoral_political_content_creation",
+      "predicate": "(content_creation AND electoral_politics) OR (making_threat OR being_conspiratorial OR tax OR ethnoracial OR LGBTQ)"
+    },
+    {
+      "setup_id": 7,
+      "classifier_id": 1,
+      "custom_name": "tax_scam",
+      "predicate": "(tax AND making_threat) OR (personal_information OR payment_tools OR go OR provide_or_give OR buy_or_purchase OR send_or_transfer OR click_or_enter OR role_playing)"
+    },
+    {
+      "setup_id": 8,
+      "classifier_id": 1,
+      "custom_name": "scamazon",
+      "predicate": "(personal_information AND payment_tools AND (buy_or_purchase OR click_or_enter OR grant_or_approve OR send_or_transfer OR provide_or_give OR go OR download_or_install)) OR (trust_seeding OR making_threat OR tax)"
+    },
+    {
+      "setup_id": 9,
+      "classifier_id": 1,
+      "custom_name": "reinforcing_delusional_thinking",
+      "predicate": "(being_conspiratorial AND (emotionally_engaging OR being_sycophantic OR role_playing OR trust_seeding)) OR (go)"
+    },
+    {
+      "setup_id": 10,
+      "classifier_id": 2,
+      "custom_name": "phishing_content_creation",
+      "predicate": "(content_creation AND click_or_enter AND (personal_information OR provide_or_give)) OR (making_threat OR tax OR payment_tools)"
+    },
+    {
+      "setup_id": 11,
+      "classifier_id": 2,
+      "custom_name": "racist_content_creation",
+      "predicate": "(content_creation AND ethnoracial AND (making_threat OR hatespeech)) OR (being_conspiratorial OR electoral_politics OR LGBTQ OR role_playing)"
+    },
+    {
+      "setup_id": 12,
+      "classifier_id": 2,
+      "custom_name": "homophobic_content_creation",
+      "predicate": "(content_creation AND LGBTQ AND (making_threat OR hatespeech)) OR (ethnoracial OR being_conspiratorial OR role_playing)"
+    },
+    {
+      "setup_id": 13,
+      "classifier_id": 2,
+      "custom_name": "sql_injection",
+      "predicate": "(sql_query_crafting AND sql_improper_syntax) OR (content_creation OR download_or_install OR click_or_enter OR grant_or_approve OR personal_information)"
+    },
+    {
+      "setup_id": 14,
+      "classifier_id": 2,
+      "custom_name": "romance_baiting",
+      "predicate": "(emotionally_engaging AND (buy_or_purchase OR click_or_enter OR send_or_transfer OR download_or_install OR provide_or_give OR go OR payment_tools) AND (trust_seeding OR role_playing)) OR (grant_or_approve OR personal_information OR being_sycophantic)"
+    },
+    {
+      "setup_id": 15,
+      "classifier_id": 2,
+      "custom_name": "electoral_political_content_creation",
+      "predicate": "(content_creation AND electoral_politics) OR (making_threat OR being_conspiratorial OR tax OR ethnoracial OR LGBTQ)"
+    },
+    {
+      "setup_id": 16,
+      "classifier_id": 2,
+      "custom_name": "reinforcing_delusional_thinking",
+      "predicate": "(being_conspiratorial AND (emotionally_engaging OR being_sycophantic OR role_playing OR trust_seeding)) OR (go)"
+    },
+    {
+      "setup_id": 17,
+      "classifier_id": 2,
+      "custom_name": "tax_scam",
+      "predicate": "(tax AND making_threat) OR (personal_information OR payment_tools OR go OR provide_or_give OR buy_or_purchase OR send_or_transfer OR click_or_enter OR role_playing)"
+    },
+    {
+      "setup_id": 18,
+      "classifier_id": 2,
+      "custom_name": "scamazon",
+      "predicate": "(personal_information AND payment_tools AND (buy_or_purchase OR click_or_enter OR grant_or_approve OR send_or_transfer OR provide_or_give OR go OR download_or_install)) OR (trust_seeding OR making_threat OR tax)"
+    }
+  ]
+}

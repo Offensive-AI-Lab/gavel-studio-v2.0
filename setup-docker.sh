@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+###############################################################################
+# One-time environment setup for the DOCKER run mode.
+#
+#   ./setup-docker.sh          # create/populate backend/.env, then optionally launch
+#
+# Config lives in ONE place: backend/.env — the SAME file native dev uses. The
+# compose file mounts it into the backend container and overrides only the few
+# container-only values (DB host, the mounted SSH-key path). This script fills
+# in backend/.env so a fresh clone can run the whole stack without hand-editing:
+#   * creates backend/.env (from backend/.env.example, or fresh) if missing,
+#   * prompts for the optional parameters (OpenAI / HuggingFace / remote
+#     central server URL), explaining what each unlocks,
+#   * offers to run `docker compose --env-file backend/.env up --build`.
+#
+# Connects to a REMOTE central server (set CENTRAL_SERVER_URL). This stack runs
+# only backend + frontend + postgres; the central server is a separate, isolated
+# deployment (central-server/docker-compose.yml). No JWT secret is set here — the
+# backend verifies tokens via the remote server's /auth/verify.
+#
+# Re-runnable: existing values are kept; you can press Enter to skip any prompt.
+###############################################################################
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT"
+
+if [ -t 1 ]; then
+  C_B=$'\033[34m'; C_G=$'\033[32m'; C_Y=$'\033[33m'; C_D=$'\033[2m'; C_O=$'\033[0m'
+else C_B=""; C_G=""; C_Y=""; C_D=""; C_O=""; fi
+step() { echo "${C_B}▶ $*${C_O}"; }
+ok()   { echo "${C_G}✓ $*${C_O}"; }
+warn() { echo "${C_Y}! $*${C_O}"; }
+
+# Single source of truth for app config: backend/.env. Docker reads it via
+# `docker compose --env-file backend/.env`, so compose's ${VAR} interpolation
+# (JWT_SECRET_KEY, HF_TOKEN, SLURM_SSH_KEY_FILE) comes from this SAME file —
+# there is no separate repo-root .env.
+ENV="backend/.env"
+
+# --- set KEY=value in $ENV: replace in place if present, else append ---------
+set_kv() {
+  local key="$1" val="$2"
+  if grep -qE "^${key}=" "$ENV" 2>/dev/null; then
+    awk -v k="$key" -v v="$val" '
+      $0 ~ "^"k"=" { print k"="v; found=1; next } { print }
+      END { if (!found) print k"="v }' "$ENV" > "$ENV.tmp" && mv "$ENV.tmp" "$ENV"
+  else
+    printf '%s=%s\n' "$key" "$val" >> "$ENV"
+  fi
+}
+get_kv() { sed -n "s/^$1=//p" "$ENV" 2>/dev/null | head -1; }
+
+# --- 1. ensure backend/.env exists -------------------------------------------
+step "Preparing $ROOT/$ENV"
+if [ ! -f "$ENV" ]; then
+  if [ -f "backend/.env.example" ]; then cp backend/.env.example "$ENV"; ok "created $ENV from backend/.env.example"; else : > "$ENV"; ok "created an empty $ENV"; fi
+else
+  ok "$ENV already exists — updating it"
+fi
+
+# No JWT secret step: this stack (backend + frontend + postgres) connects to a
+# REMOTE central server, so no signing key is needed here. The backend holds no
+# JWT secret either — it verifies tokens via the central server's /auth/verify.
+# (Running your OWN central server? It's a separate, isolated deployment:
+#  central-server/docker-compose.yml, configured via central-server/.env.)
+
+# --- 2. optional parameters (prompt only if interactive + not already set) ---
+prompt_kv() {   # key, human label
+  local key="$1" label="$2" cur; cur="$(get_kv "$key")"
+  case "$cur" in hf_xxxxxxxx*|sk-xxxx*|changeme*) cur="";; esac
+  if [ -n "$cur" ]; then ok "$key already set — keeping it"; return; fi
+  if [ -t 0 ]; then
+    printf "  %s%s (Enter to skip): %s" "$C_D" "$label" "$C_O"
+    local val; read -r val || val=""
+    set_kv "$key" "$val"
+  else
+    warn "$key not set — add it to .env: $label"
+  fi
+}
+step "Optional parameters (press Enter to skip)"
+# OpenAI drives AI generation in the backend — always relevant.
+prompt_kv OPENAI_API_KEY     "OpenAI API key      — enables AI rule/CE generation"
+# Central server URL — the remote server this deployment connects to for
+# auth/login/community. The bundled local central is opt-in (compose 'central'
+# profile), so set this to your remote server's URL.
+# A localhost value (the local-mode default or a leftover) must NOT count as
+# "already configured" — clear it so we re-prompt for the real URL.
+case "$(get_kv CENTRAL_SERVER_URL)" in http://localhost*|http://127.0.0.1*) set_kv CENTRAL_SERVER_URL "";; esac
+prompt_kv CENTRAL_SERVER_URL "Central server URL  — REQUIRED, the server everyone connects to, e.g. https://central.example"
+# HF_TOKEN is WRITE-scope and used ONLY by the central service (to publish to
+# HF). The backend never uses it (it read-syncs the public library anonymously).
+# So only ask for it when you're self-hosting central; if you pointed at a
+# REMOTE central, that server holds its own token — you don't need one here.
+if [ -n "$(get_kv CENTRAL_SERVER_URL)" ]; then
+  ok "HF_TOKEN not needed — you're connecting to a remote central (it holds its own token)"
+else
+  prompt_kv HF_TOKEN         "HuggingFace token   — only to PUBLISH from your own central (blank = no publishing)"
+fi
+
+ok "$ENV is ready"
+echo "    ${C_D}Edit by hand in backend/.env: OPENAI_API_KEY, CENTRAL_SERVER_URL.${C_O}"
+
+# --- 3. offer to launch ------------------------------------------------------
+_DC="docker compose --env-file backend/.env up --build"
+if [ -t 0 ] && command -v docker >/dev/null 2>&1; then
+  printf "\n  %sRun '%s' now? [Y/n] %s" "$C_D" "$_DC" "$C_O"
+  read -r yn || yn="y"
+  case "$yn" in [Nn]*) echo "  Skipped. Run it yourself when ready: $_DC" ;;
+    *) exec docker compose --env-file backend/.env up --build ;;
+  esac
+else
+  echo "  Next: $_DC"
+fi

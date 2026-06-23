@@ -1,0 +1,62 @@
+node_modules/
+build/
+dist/
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+*.pem
+*.key
+credentials*.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+.DS_Store
+*.swp
+*.swo
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Local-only documentation drafts (deployment notes, test-scenario
+# scratchpads, generated PDFs, MD→PDF helper). Kept out of git so
+# team members can iterate on them without conflicting check-ins.
+docs/
+
+GAVEL_Automated_Rule_and_CE_Generation_Pipeline-main/
+attention_based_classification-temp-detached-fix/
+# Classifier training artifacts (large model files - not tracked in git)
+backend/trained_classifiers/
+backend/LLMs/
+.claude/
+
+# Test reports & artifacts (generated, not tracked)
+backend/tests/report.html
+backend/tests/*.pdf
+backend/tests/test_results.json
+backend/tests/coverage.json
+backend/tests/coverage.xml
+backend/tests/coverage_html/
+backend/tests/htmlcov/
+backend/tests/__pycache__/
+backend/tests/.pytest_cache/
+backend/tests/trained_classifiers/
+backend/.coverage
+
+# Mutation testing (mutmut) — cache + log are regenerated on every run.
+backend/.mutmut-cache
+backend/mutmut.log
+
+# Everything under backend/scripts/ is local admin / seed / one-off dev tooling
+# that is not part of the running app, so the whole folder is ignored. Use the
+# /* form (not the bare directory) so the file below can be re-included.
+# KEPT tracked via negation because code depends on it:
+#   - reseed_db_from_registry.py : used by tests/unit/test_cross_platform.py and
+#                                  referenced in routes/library.py (schema recovery)
+backend/scripts/*
+!backend/scripts/reseed_db_from_registry.py

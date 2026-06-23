@@ -1,0 +1,574 @@
+/* src/css/auth.css
+ *
+ * Two-column auth shell — dark splash variant.
+ *
+ * Auth + landing carry the marketing-facing "first impression" job, so
+ * they wear a deep navy/slate gradient with vibrant indigo/violet/blue
+ * glows and dark glassmorphic cards. The dashboard interior (Layout.css,
+ * Sidebar.css, all the page surfaces) stays light — that's where the
+ * user reads tables, tunes thresholds, watches realtime traffic, and
+ * generally needs the lower-fatigue surface.
+ *
+ * Boundaries:
+ *   - Used by Login, Register, LandingPage. Anything inside the
+ *     authenticated app that wraps in <Layout> stays light.
+ *   - The accent gradient steps up in brightness vs the light variant
+ *     (#818cf8 → #3b82f6) because indigo on dark needs more luminance
+ *     to read as "primary action".
+ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+
+/* ----- Page shell ------------------------------------------------------ */
+
+.auth-page {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #e2e8f0;
+    z-index: 9999;
+
+    /* Deep navy base + three atmospheric glows: indigo top-left, blue
+     * top-right, violet bottom-center. Glows are stronger than the
+     * light variant (~0.30 vs ~0.16 alpha) because the dark base
+     * eats most of the saturation. */
+    background:
+        radial-gradient(ellipse 65% 55% at 12% 5%, rgba(99, 102, 241, 0.42) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 50% at 100% 25%, rgba(59, 130, 246, 0.28) 0%, transparent 55%),
+        radial-gradient(ellipse 75% 55% at 50% 105%, rgba(139, 92, 246, 0.32) 0%, transparent 60%),
+        linear-gradient(180deg, #060a1a 0%, #0c1226 50%, #0a0f23 100%);
+}
+
+
+/* ----- Two-column shell ------------------------------------------------ */
+
+.auth-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: center;
+    gap: 64px;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.auth-shell .auth-card {
+    justify-self: end;
+}
+
+
+/* ----- Brand / feature aside ------------------------------------------ */
+
+.auth-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 8px 8px 8px 0;
+    color: #e2e8f0;
+    animation: auth-aside-in 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes auth-aside-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.aside-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.aside-mark {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #818cf8 0%, #3b82f6 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow:
+        0 8px 28px -4px rgba(99, 102, 241, 0.65),
+        0 2px 4px rgba(99, 102, 241, 0.35);
+}
+
+.aside-brand-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #f8fafc;
+}
+
+.aside-brand-kicker {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.aside-headline {
+    font-size: 2.6rem;
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin: 8px 0 0;
+    color: #f8fafc;
+}
+
+/* Gradient text uses brighter shades — dark base means the original
+ * indigo/violet read as muted; we lift them to slate-300-ish brightness
+ * so the highlight word actually pops. */
+.aside-headline .grad {
+    background: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 55%, #93c5fd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.aside-sub {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 1.02rem;
+    line-height: 1.55;
+    max-width: 460px;
+}
+
+.aside-features {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.aside-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.aside-feature-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    /* Stronger shadow on dark — feature tiles need to "lift" off the
+     * card to keep the same hierarchy as the light variant. */
+    box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.45);
+}
+
+/* Tone tiles get a touch lifted toward their lighter neighbour so they
+ * read as "saturated" rather than "dim" against the navy backdrop. */
+.aside-feature-icon.tone-indigo  { background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%); }
+.aside-feature-icon.tone-blue    { background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%); }
+.aside-feature-icon.tone-violet  { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); }
+.aside-feature-icon.tone-emerald { background: linear-gradient(135deg, #34d399 0%, #10b981 100%); }
+
+.aside-feature-text { min-width: 0; }
+
+.aside-feature-title {
+    font-weight: 700;
+    color: #f1f5f9;
+    font-size: 0.98rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+}
+
+.aside-feature-desc {
+    color: #94a3b8;
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.aside-foot {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    width: max-content;
+    max-width: 100%;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    color: #cbd5e1;
+    font-size: 0.82rem;
+    font-weight: 600;
+    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.40);
+    margin-top: 4px;
+}
+
+.aside-foot-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.28);
+}
+
+
+/* ----- Card ------------------------------------------------------------ */
+
+.auth-card {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    /* Dark glass: navy fill with subtle indigo border. Backdrop blur
+     * picks up the glow color from the page gradient behind the card,
+     * so even though the fill is uniform the card edge feels alive. */
+    background: rgba(15, 23, 42, 0.62);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 24px;
+    padding: 40px 36px 32px;
+    color: #e2e8f0;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 24px 48px -12px rgba(2, 6, 23, 0.55),
+        0 8px 24px -8px rgba(99, 102, 241, 0.28);
+    animation: auth-card-in 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Soft violet orb glowing behind the card. Bigger and more saturated
+ * than the light variant because the dark base swallows soft glows. */
+.auth-card::before {
+    content: '';
+    position: absolute;
+    inset: -50px -40px auto auto;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.45) 0%, transparent 70%);
+    filter: blur(28px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+@keyframes auth-card-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* ----- Header (logo + title + subtitle) ------------------------------- */
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.auth-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #818cf8 0%, #3b82f6 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 18px;
+    box-shadow:
+        0 8px 32px -4px rgba(99, 102, 241, 0.70),
+        0 2px 6px rgba(99, 102, 241, 0.35);
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-card:hover .auth-logo {
+    transform: scale(1.04);
+}
+
+.auth-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+    color: #f8fafc;
+}
+
+.auth-subtitle {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+
+/* ----- Form ------------------------------------------------------------ */
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 1.1rem;
+    transition: color 180ms ease;
+    pointer-events: none;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 1.5px solid rgba(148, 163, 184, 0.18);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    /* Dark fill that's a touch deeper than the card so inputs visibly
+     * recede. Border picks up indigo on focus. */
+    background: rgba(2, 6, 23, 0.55);
+    color: #f1f5f9;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.input-group input::placeholder {
+    color: #64748b;
+}
+
+.input-group input:focus {
+    outline: none;
+    background: rgba(2, 6, 23, 0.75);
+    border-color: rgba(129, 140, 248, 0.85);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22);
+}
+
+/* Chrome / Safari autofill override.
+ * Browsers force background-color: rgb(232, 240, 254) and dark text on
+ * autofilled inputs and you cannot override `background-color` directly
+ * — but a 1000px inset box-shadow paints over it, and
+ * -webkit-text-fill-color beats Chrome's forced text color. The 5000s
+ * transition delay keeps the yellow flash from showing on page load. */
+.input-group input:-webkit-autofill,
+.input-group input:-webkit-autofill:hover {
+    -webkit-text-fill-color: #f1f5f9;
+    -webkit-box-shadow: 0 0 0 1000px #0a1226 inset;
+    box-shadow: 0 0 0 1000px #0a1226 inset;
+    border-color: rgba(148, 163, 184, 0.18);
+    caret-color: #f1f5f9;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-group input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f1f5f9;
+    -webkit-box-shadow:
+        0 0 0 1000px #0a1226 inset,
+        0 0 0 4px rgba(99, 102, 241, 0.22);
+    box-shadow:
+        0 0 0 1000px #0a1226 inset,
+        0 0 0 4px rgba(99, 102, 241, 0.22);
+    border-color: rgba(129, 140, 248, 0.85);
+    caret-color: #f1f5f9;
+}
+
+.input-group:focus-within .input-icon {
+    color: #a5b4fc;
+}
+
+
+/* ----- Primary button ------------------------------------------------- */
+
+.auth-btn {
+    width: 100%;
+    padding: 14px 20px;
+    /* Brighter gradient than the dashboard variant — needs to read as
+     * "primary action" against a dark card. */
+    background: linear-gradient(135deg, #818cf8 0%, #3b82f6 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow:
+        0 6px 20px -4px rgba(99, 102, 241, 0.60),
+        0 2px 6px rgba(99, 102, 241, 0.30);
+    transition:
+        transform 120ms ease,
+        box-shadow 200ms ease,
+        filter 180ms ease;
+}
+
+.auth-btn:hover {
+    box-shadow:
+        0 12px 30px -4px rgba(99, 102, 241, 0.75),
+        0 2px 6px rgba(99, 102, 241, 0.30);
+    filter: brightness(1.06);
+}
+
+.auth-btn:active {
+    transform: scale(0.99);
+}
+
+.auth-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+/* ----- Landing-only CTAs --------------------------------------------- */
+
+/* LandingPage renders these as <Link> elements (so we style anchors,
+ * not just <button>). Same brightness lift as the form button — the
+ * primary CTA leads, the ghost is a quiet alternate. */
+
+.landing-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.landing-cta-primary,
+.landing-cta-ghost {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    box-sizing: border-box;
+    transition:
+        transform 120ms ease,
+        box-shadow 200ms ease,
+        filter 180ms ease,
+        background 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease;
+}
+
+.landing-cta-primary {
+    background: linear-gradient(135deg, #818cf8 0%, #3b82f6 100%);
+    color: #ffffff;
+    box-shadow:
+        0 6px 20px -4px rgba(99, 102, 241, 0.60),
+        0 2px 6px rgba(99, 102, 241, 0.30);
+}
+
+.landing-cta-primary:hover {
+    box-shadow:
+        0 12px 30px -4px rgba(99, 102, 241, 0.75),
+        0 2px 6px rgba(99, 102, 241, 0.30);
+    filter: brightness(1.06);
+}
+
+.landing-cta-primary:active {
+    transform: scale(0.99);
+}
+
+.landing-cta-ghost {
+    background: rgba(15, 23, 42, 0.55);
+    color: #c4b5fd;
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+.landing-cta-ghost:hover {
+    background: rgba(15, 23, 42, 0.80);
+    border-color: rgba(165, 180, 252, 0.55);
+    color: #ddd6fe;
+}
+
+
+/* ----- Footer link ---------------------------------------------------- */
+
+.auth-footer {
+    margin-top: 22px;
+    text-align: center;
+    font-size: 0.92rem;
+    color: #94a3b8;
+}
+
+.auth-footer a {
+    color: #a5b4fc;
+    text-decoration: none;
+    font-weight: 700;
+    margin-left: 4px;
+    transition: color 150ms ease;
+}
+
+.auth-footer a:hover {
+    color: #ddd6fe;
+    text-decoration: underline;
+}
+
+
+/* ----- Error banner --------------------------------------------------- */
+
+.auth-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.22) 100%);
+    color: #fecaca;
+    border: 1px solid rgba(239, 68, 68, 0.38);
+    font-size: 0.88rem;
+    font-weight: 500;
+    animation: auth-shake 360ms ease-in-out;
+}
+
+@keyframes auth-shake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-4px); }
+    75%      { transform: translateX(4px); }
+}
+
+
+/* ----- Responsive: collapse to single column ------------------------- */
+
+@media (max-width: 960px) {
+    .auth-shell {
+        grid-template-columns: 1fr;
+        gap: 0;
+        max-width: 460px;
+    }
+    .auth-aside {
+        display: none;
+    }
+    .auth-shell .auth-card {
+        justify-self: center;
+    }
+}

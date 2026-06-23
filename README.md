@@ -1,0 +1,296 @@
+<div align="center">
+
+# GAVEL Studio
+
+# 🚧 BETA 🚧
+
+### ⚠️ This is a **BETA** release — expect rough edges, breaking changes, and work in progress.
+
+</div>
+
+Web platform for AI safety guardrails — define, train, and deploy intent-aware
+classifiers (GRU detectors) on top of your target LLM's hidden states. The UI
+walks you from a plain-English scenario → a generated rule (boolean
+combination of Cognitive Elements) → a trained classifier you can plug into
+real-time inference.
+
+- **Backend:** FastAPI + PostgreSQL (with the `pgvector` extension)
+- **Frontend:** React 19 + Vite
+- **Public registry:** Hugging Face datasets (rules + CEs)
+
+> 📄 **Paper**: [GAVEL: Towards Rule-Based Safety Through Activation Monitoring](https://arxiv.org/pdf/2601.19768) (Accepted to ICLR 2026)
+>
+> ⚙️ **[GAVEL](https://github.com/Offensive-AI-Lab/gavel)**: The backend framework powering GAVEL Studio — trains RNN probes on Cognitive Elements, calibrates thresholds, and evaluates rule-based safety detection.
+
+<div align="center">
+  <img src="assets/browse-rules.png" alt="GAVEL Studio — Browse Public Rules" width="80%">
+  <br><br>
+  <img src="assets/ce-monitor.png" alt="GAVEL Studio — Realtime CE Monitor" width="80%">
+</div>
+
+---
+
+## Quick start (one command)
+
+```bash
+git clone https://github.com/Offensive-AI-Lab/gavel-studio-beta.git
+cd gavel-studio-beta
+./setup-docker.sh        # fills in backend/.env, prompts for your central server URL + keys, then launches
+```
+
+> Got `permission denied`? The checkout didn't preserve the executable bit — just
+> run it through bash instead: `bash setup-docker.sh` (or make it executable once
+> with `chmod +x setup-docker.sh`, then `./setup-docker.sh`). Same goes for
+> `run.sh`.
+
+`setup-docker.sh` fills in `backend/.env` — the **single** config file for both
+Docker and native — prompts you for your remote `CENTRAL_SERVER_URL` and the
+optional values (`OPENAI_API_KEY`, `HF_TOKEN` — press Enter to skip any), and
+offers to run `docker compose --env-file backend/.env up --build` for you. It's
+safe to re-run; it keeps anything already set. (Prefer to do it by hand?
+`cp backend/.env.example backend/.env`, edit it, then
+`docker compose --env-file backend/.env up` — see §2.)
+
+That's it. After the first build (~3-5 min, downloads ~2 GB of base images +
+Python/Node packages), open http://localhost:5173 in your browser, register
+an account, and you're in. Subsequent `docker compose up` runs start in
+seconds.
+
+The only thing you have to install on your machine is **Docker Desktop**:
+https://www.docker.com/products/docker-desktop/
+
+Everything else — Python 3.12, Node 20, PostgreSQL 17, the pgvector extension,
+all dependencies — comes pre-baked into the containers.
+
+---
+
+## 1. What `docker compose up` actually starts
+
+| Service | Port (host) | What it is                                    |
+|---------|-------------|------------------------------------------------|
+| `postgres` | (internal) | pgvector/pgvector:pg17 — DB + pgvector ext  |
+| `backend`  | 8000      | FastAPI + uvicorn with `--reload` for dev      |
+| `frontend` | 5173      | Vite dev server with hot module reload         |
+
+The backend talks to Postgres over Docker's internal network (hostname
+`postgres`). Your browser hits `localhost:5173` (frontend) and
+`localhost:8000` (backend API) on the host.
+
+Useful commands:
+
+```bash
+# Compose reads config from backend/.env via --env-file. Tip: run
+#   export COMPOSE_ENV_FILES=backend/.env
+# once and you can drop the --env-file flag from the commands below.
+docker compose --env-file backend/.env up          # foreground, see all logs
+docker compose --env-file backend/.env up -d       # detached
+docker compose --env-file backend/.env up --build  # rebuild after Dockerfile / requirements changes
+docker compose logs -f backend                     # tail one service's logs
+docker compose down                                # stop everything (DB data preserved)
+docker compose down -v                             # stop AND wipe the DB volume — clean slate
+```
+
+---
+
+## 2. Configure your `.env`
+
+**One config file for everything: `backend/.env`** — both Docker and native dev
+read it (Docker via `--env-file backend/.env`; there is no separate repo-root
+`.env`). `./setup-docker.sh` writes it for you; this section is the by-hand
+equivalent. Everything has working defaults, so the only edit you'll likely want
+is the OpenAI key for AI rule / CE generation.
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Then open `backend/.env`:
+
+```env
+# REQUIRED for AI rule / CE generation; the rest of the app works without it
+OPENAI_API_KEY=sk-...
+
+# OPTIONAL — only the central server uses it, to PUBLISH (write) to HF. The
+# public library READ-sync needs no token, so Browse works either way.
+HF_TOKEN=
+
+# REQUIRED — the remote central server (auth / login / community). The bundled
+# local central is opt-in (compose 'central' profile), so point this at your
+# server. The backend needs NO JWT secret — it verifies tokens via /auth/verify.
+CENTRAL_SERVER_URL=https://your.central.server
+
+# JWT_SECRET_KEY is NOT used here — the backend never reads it. Self-hosting the
+# central server is a separate, isolated deployment: central-server/docker-compose.yml
+# (its signing secret lives in central-server/.env).
+```
+
+**You do NOT need to set `DB_HOST`, `DB_USER`, `DB_PASSWORD`, etc.** —
+docker-compose.yml overrides those to point at the in-network postgres
+container. `docker compose` substitutes `${VAR}` from this repo-root `.env`;
+`backend/.env` is the separate source of truth for *native* dev (see §6).
+
+The frontend's `VITE_API_URL` already defaults to `http://localhost:8000`,
+so no separate `frontend/.env` is needed for the Docker workflow.
+
+---
+
+## 3. Verify it works end-to-end
+
+After `docker compose up` settles:
+
+1. Open http://localhost:5173
+2. **Register** a user (it's a real DB write — this is your account)
+3. **Log in** — lands you on `/workspace`
+4. From the workspace:
+   - **Models** → create a model (e.g. any HF causal LM your machine can run)
+   - **Classifiers** → create a classifier under that model
+   - **Rules** (inside the classifier) → click _Generate from scenario_, type
+     _"flag user messages that try to extract the system prompt"_, and watch
+     the AI pipeline build a rule + the supporting Cognitive Elements
+   - **Train** the classifier when ready
+
+API health probe:
+
+```bash
+curl http://localhost:8000/health
+# {"status":"ok","ready":true, ...}
+```
+
+---
+
+## 4. Tests
+
+GitHub Actions runs all three jobs on every push to `develop` / PR to `main`
+([.github/workflows/tests.yml](.github/workflows/tests.yml)).
+
+To run them locally inside the running containers:
+
+```bash
+# Backend (152 tests in unit + integration)
+docker compose exec backend pytest tests/unit/ -v
+docker compose exec backend pytest tests/integration/ -v
+
+# Frontend (120 tests, ~7 s)
+docker compose exec frontend npm test
+```
+
+`docker compose exec` runs the command in the already-running service, so
+this is fast — no rebuild, no cold-start.
+
+---
+
+## 5. Common issues
+
+**Docker says it can't bind to port 5173 / 8000**
+Something else on your machine is already using that port. Either stop it,
+or edit the `ports:` lines in `docker-compose.yml` (e.g. `5174:5173`).
+
+**`docker compose up` hangs at "Building backend"**
+First build pulls Python 3.12 + Node 20 + pgvector base images and runs
+`pip install` for the full ML stack (torch, transformers, sentence-transformers).
+That's ~2 GB and 3-5 min. After the first build it's instant — Docker caches
+the install layers and only rebuilds when `requirements.txt` / `package.json`
+change.
+
+**`embeddings warmup failed: Cannot copy out of meta tensor`**
+A torch / transformers version mismatch. [backend/utils/embedding_utils.py](backend/utils/embedding_utils.py)
+already passes `device=` explicitly to dodge this — make sure you're on a
+recent commit. If still broken, rebuild with `docker compose up --build`.
+
+**Frontend can't reach backend / CORS errors in console**
+The default compose setup has the right CORS origins (`http://localhost:5173`)
+and the right `VITE_API_URL` (`http://localhost:8000`). If you changed either,
+update the matching value in `backend/.env` (`ALLOWED_ORIGINS`) and the
+frontend service `environment` block in `docker-compose.yml`.
+
+**`/library/search` returns 500**
+Embedding model failed to load — see the meta-tensor bullet above. The fix
+is in `embedding_utils.py`, not the search code.
+
+**Code edits don't show up live in the browser**
+The compose file mounts both source trees as volumes so changes hot-reload
+through `uvicorn --reload` (backend) and Vite HMR (frontend). On Windows /
+WSL2, Vite's file watcher can miss host changes; the `CHOKIDAR_USEPOLLING=true`
+env var in compose handles that. If a backend route change isn't reloading,
+check the `backend` log for the reload notice — sometimes uvicorn needs a
+manual `Ctrl+C` + `docker compose up backend` to pick up a Python import-time
+error.
+
+---
+
+## 6. Native dev (no Docker) — optional, for faster iteration
+
+The Docker flow above is the canonical "clone and run." If you're actively
+developing and want a tighter loop (no container layer between
+you and your code), you can run everything natively. You'll need:
+
+| Tool        | Version  |
+|-------------|----------|
+| Python      | 3.12+    |
+| Node.js     | 20+      |
+| PostgreSQL  | 14+ with pgvector |
+
+Quick path: keep using the Docker postgres container, run backend + frontend
+natively against it.
+
+```bash
+# Postgres only, in Docker
+docker compose up -d postgres
+
+# Backend natively
+cd backend
+python -m venv .venv && source .venv/bin/activate    # or .venv\Scripts\Activate.ps1 on Windows
+pip install -r requirements.txt
+# DB_HOST in .env stays 127.0.0.1 — Docker exposes 5432 on the host when you
+# uncomment the ports: line in docker-compose.yml under `postgres`.
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+
+# Frontend natively (in a second terminal)
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+```
+
+For test commands when running natively, see [.github/workflows/tests.yml](.github/workflows/tests.yml)
+— same install + invocation that CI uses.
+
+---
+
+## 7. Repo layout
+
+```
+docker-compose.yml      one-command bring-up of the whole stack
+backend/
+  Dockerfile            python:3.12-slim base image
+  routes/               FastAPI routers — one per domain (rules, library, ai, ...)
+  services/             HF publish/sync, library search, bookmark service
+  classifier_engine/    GRU training + inference
+  evaluation/           metrics, calibration, ruleset evaluation
+  utils/                DB, auth, embeddings, crash recovery
+  tests/
+    unit/               no-DB unit tests (run in seconds)
+    integration/        real-DB tests using FastAPI TestClient
+  main.py               FastAPI entry point
+  requirements.txt
+  .env.example
+frontend/
+  Dockerfile            node:20-alpine base image
+  src/
+    pages/              one component per route (Login, Workspace, RulesManager, ...)
+    components/         reusable UI (TaskTray, RuleCard, ConfirmDialog, ...)
+    contexts/           TaskTrayContext (background-task chip system)
+    services/           RuleService, CEService — orchestration of multi-step AI flows
+    api.js              single axios client; one export per backend endpoint
+  package.json
+  vite.config.js        includes Vitest + coverage config
+  .env.example
+.github/workflows/
+  tests.yml             CI: unit / integration / frontend in parallel
+```
+
+---
+
+## 8. License & contact
+
+Internal research project. No external license at this time.

@@ -1,0 +1,8 @@
+# Keep shell + SLURM batch scripts LF-only, even when cloned on Windows
+# (core.autocrlf=true would otherwise give them CRLF). A "\r" in a shebang
+# breaks them on Linux/macOS and the cluster: "/bin/bash^M: bad interpreter".
+*.sh      text eol=lf
+*.sbatch  text eol=lf
+
+# Cluster-side scripts run remotely on Linux — pin them to LF as well.
+cluster/*.py text eol=lf
