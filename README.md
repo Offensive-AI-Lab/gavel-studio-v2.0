@@ -7,12 +7,9 @@
 ### ⚠️ This is a **BETA** release — expect rough edges, breaking changes, and work in progress.
 
 </div>
+GAVEL Studio Beta is an interactive web platform for building intent-aware, rule-based activation safety monitors for LLMs. Starting from a plain-English scenario, it helps you define the behavior you want to detect as Cognitive Elements (CEs), compose predicate rules over those CEs, train GRU-based detectors on your target LLM’s hidden states, and deploy them for real-time inference.
 
-Web platform for AI safety guardrails — define, train, and deploy intent-aware
-classifiers (GRU detectors) on top of your target LLM's hidden states. The UI
-walks you from a plain-English scenario → a generated rule (boolean
-combination of Cognitive Elements) → a trained classifier you can plug into
-real-time inference.
+Rather than relying on surface-text moderation, GAVEL Studio works at the activation level. The platform brings the full GAVEL workflow into one UI: rule design, CE generation, classifier training, live monitoring, and access to a public registry of reusable rules and Cognitive Elements.
 
 - **Backend:** FastAPI + PostgreSQL (with the `pgvector` extension)
 - **Frontend:** React 19 + Vite
