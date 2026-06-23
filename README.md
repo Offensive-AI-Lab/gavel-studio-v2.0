@@ -289,8 +289,34 @@ frontend/
   tests.yml             CI: unit / integration / frontend in parallel
 ```
 
+## 📜 Citation
+
+If you use GAVEL in your research, please cite our paper:
+
+```bibtex
+@inproceedings{rozenfeld2026gavel,
+  title={GAVEL: Towards Rule-Based Safety Through Activation Monitoring},
+  author={Rozenfeld, Shir and Pankajakshan, Rahul and Zloczower, Itay and Lenga, Eyal and Gressel, Gilad and Mirsky, Yisroel},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2026}
+}
+```
+
+
 ---
 
 ## 8. License & contact
 
-Internal research project. No external license at this time.
+This project is licensed under the Apache 2.0 license - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 9. Acknowledgment
+
+This work was funded by the European Union, supported by ERC grant: (AGI-Safety, 101222135).
+Views and opinions expressed are however those of the author(s) only and do not necessarily reflect
+those of the European Union or the European Research Council Executive Agency. Neither the
+European Union nor the granting authority can be held responsible for them.
+This work was also supported by the Israeli Ministry of Innovation Science and Technology (grant
+number 1001948211).
+
