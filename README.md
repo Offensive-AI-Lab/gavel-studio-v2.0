@@ -303,9 +303,11 @@ If you use GAVEL in your research, please cite our paper:
 
 ---
 
-## 8. License & contact
+## 8. 📄 License
 
-This project is licensed under the Apache 2.0 license - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the PolyForm Noncommercial License 1.0.0 — see the [LICENSE](LICENSE) file for details.
+
+Noncommercial use, including personal, hobby, academic, and research use, is permitted. Commercial use requires a separate license — please contact the authors.
 
 ---
 
